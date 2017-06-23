@@ -1,0 +1,400 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta http-equiv="Content-Security-Policy" content="default-src * data:; style-src * 'unsafe-inline'; script-src * 'unsafe-inline' 'unsafe-eval'">
+
+  <script src="lib/Propeller/dist/propeller.min.js"></script>
+  <script src="lib/angular/angular.min.js"></script>
+  <script src="lib/onsenui/js/onsenui.min.js"></script>
+  <script src="lib/onsenui/js/angular-onsenui.min.js"></script>
+  <script src="lib/angular-radial-color-picker/dist/js/color-picker.js"></script>
+
+  <script src="lib/colors.js"></script>
+  <script src="lib/app.js"></script>
+  <script src="lib/udp.js"></script>
+  <script src="cordova.js"></script>
+
+  <link rel="stylesheet" href="lib/onsenui/css/onsenui.css">
+  <link rel="stylesheet" href="lib/onsenui/css/onsen-css-components.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="lib/angular-radial-color-picker/dist/css/color-picker.min.css">
+</head>
+<body>
+  <ons-navigator
+    var="navi"
+    page="main.html"
+    ng-controller="AppController as app"
+    class="ng-scope">
+  </ons-navigator>
+</body>
+  <ons-template id="main.html">
+    <ons-page id="first-page" ng-controller="cmd_string" ons-show="readEspList()">
+      <ons-toolbar>
+        <div class="center">ESPLightX Control</div>
+        <div class="right">
+          <ons-toolbar-button>
+            <ons-icon style="vertical-align:middle;" icon="ion-navicon, material:md-menu" ng-click="openSettings()"></ons-icon>  
+          </ons-toolbar-button>
+        </div>
+      </ons-toolbar>
+
+      <div class="content" style="text-align: center">
+        <p>Change options below to control an ESPLightX</p>
+        <ons-list modifier="inset">
+	        <ons-list-header>Select Controller</ons-list-header>
+            <ons-list-item>
+              <div class="list-item__left">
+              	<ons-icon icon="md-cast" size="25px" class="list-item__icon"></ons-icon>
+              </div>
+              <div class="list-item__center" ng-hide="espDropdownVisible" ng-click="toggleEspDropdown()" >
+              	<span style="vertical-align: middle;">{{ esplist[lastEsp].espname | espInUse }}</span><span class="list-item__subtitle" style="vertical-align:middle; padding-left:10px;" ng-show="lastEsp>=0"> ({{ esplist[lastEsp].ipaddr }})</span>
+              </div>
+              <div class="center" ng-show="espDropdownVisible">
+              	<ons-list modifier="inset">
+                <ons-list-header>Tap to select</ons-list-header>
+                <ons-list-item tappable modifier="material" ng-click="selectEsp(-1)">
+                <label class="center">
+                        <div class="list-item__title">All Available</div>
+						<div class="list-item__subtitle">Command will be sent to all controllers enabled in Settings</div>
+                </label>
+                </ons-list-item>
+                <ons-list-item tappable modifier="material" ng-repeat="esp in esplist | filter: { disabled: false } track by $id(esp)">
+                      <label class="center" ng-click="selectEsp(esp)">
+                        <div class="list-item__title">{{ esp.espname }}</div>
+						<div class="list-item__subtitle">{{ esp.ipaddr }}</div>
+                      </label>
+                      <label class="right">
+                      </label>
+                </ons-list-item>
+            	</ons-list>
+              </div>
+            </ons-list-item>
+            <ons-list-header>Brightness</ons-list-header>
+            <ons-list-item>
+              <div class="list-item__left">
+                <ons-icon icon="md-brightness-low" size="25px" class="list-item__icon"></ons-icon>
+              </div>
+              <div class="center">
+                <ons-range id="brightness" value="50" min="0" max="99" ng-model="brightness" ng-init="brightness=50" style="width: 90%; align: center;"></ons-range>
+              </div>
+              <div class="right">
+                <ons-icon icon="md-brightness-high" size="25px" class="list-item__icon"></ons-icon>
+                <div id="brightness_label" style="width: 30px; float: right; margin-left:15px;">{{ brightness }}%</div>
+              </div>
+            </ons-list-item>           
+            <ons-list-header>Effect</ons-list-header>
+            <ons-list-item tappable>
+              <label class="list-item__left">
+                <ons-input name="effect" ng-model="effect" type="radio" input-id="effect_-1" value="-1"></ons-input>
+              </label>
+              <label for="effect_-1" class="center">
+                <div class="list-item__title">Off</div>
+                <div class="list-item__subtitle">(BLACK)</div>
+              </label>
+            </ons-list-item>        
+            <ons-list-item tappable>
+              <label class="list-item__left">
+                <ons-input checked name="effect" ng-model="effect" ng-init="effect='0'" type="radio" input-id="effect_0" value="0"></ons-input>
+              </label>
+              <label for="effect_0" class="center">
+                <div class="list-item__title">Solid RGB Color</div>
+                <div class="list-item__subtitle">(RGBCOLORS)</div>
+              </label>
+              <label class="right">
+                  <div class="list-item__thumbnail" ng-model="effect_0.color" id="effect_0.color" style="background-color:{{ effect_0.color }};" ng-click="showCS('effect_0','color', false)"></div>
+              </label>
+            </ons-list-item>
+            <ons-list-item tappable>
+              <label class="list-item__left">
+                <ons-input name="effect" ng-model="effect" type="radio" input-id="effect_1" value="1"></ons-input>
+              </label>
+              <label for="effect_1" class="center">
+                <div class="list-item__title">Full Strip Fade</div>
+                <div class="list-item__subtitle">(FADING)</div>
+              </label>
+            </ons-list-item>
+            <ons-list-item tappable ng-show="allowDigital">
+              <label class="list-item__left">
+                <ons-input name="effect" ng-model="effect" type="radio" input-id="effect_2" value="2"></ons-input>
+              </label>
+              <label for="effect_2" class="center">
+                <div class="list-item__title">Rainbow Fade</div>
+                <div class="list-item__subtitle">(DIGITALFADING)</div>
+              </label>
+            </ons-list-item>
+            <ons-list-item tappable ng-show="allowDigital">
+              <label class="list-item__left">
+                <ons-input name="effect" ng-model="effect" type="radio" input-id="effect_3" value="3"></ons-input>
+              </label>
+              <label for="effect_3" class="center" ng-show="allowDigital">
+                <div class="list-item__title">Cylon Eye/Knightrider</div>
+                <div class="list-item__subtitle">(CYLONEYE)</div>
+              </label>
+              <label class="right" id="effect_3.color_cp" ng-model="effect_3.color_cp">
+                  <div class="list-item__thumbnail" ng-model="effect_3.color" id="effect_3.color" ng-class="{ 'gradient': effect_3.color=='#0f0f0f' }" style="background-color:{{ effect_3.color=='#0f0f0f' ? '#FFFFFF' : effect_3.color }};" ng-click="showCS('effect_3','color', true)"></div>
+              </label>
+            </ons-list-item>
+            <ons-list-item ng-model="effect_3.expanded" ng-show="effect==3 && allowDigital">
+              <div style="width:95%; display:block; text-align: center;">
+                  <ons-list modifier="inset">
+                    <ons-list-header>Percent of Strip</ons-list-header>
+                    <ons-list-item>
+                        <div class="center">
+                        <ons-range id="eye_width" value="0" min="0" max="100" ng-model="eye_width" ng-init="eye_width=0" style="width: 90%; align: center;"></ons-range>
+                        </div>
+                        <div class="right" style="width: 40px; float: right; margin-left:10px; margin-right:10px; text-align: center;">{{ eye_width | eye }}</div>
+                    </ons-list-item>
+                    <ons-list-header ng-model="eye_center_h" ng-show="eye_width != 0">Centered Around Pixel</ons-list-header>
+                    <ons-list-item ng-model="eye_center_i" ng-show="eye_width != 0">
+                        <div class="center">
+                        <ons-range id="eye_center" value="50" min="0" max="100" ng-model="eye_center" ng-init="eye_center=50" style="width: 90%; align: center;"></ons-range>
+                        </div>
+                        <div class="right" style="width: 40px; float: right; margin-left:10px; margin-right:10px; text-align: center;">{{ eye_center }}%</div>
+                    </ons-list-item>
+                </ons-list>
+              </div>
+            </ons-list-item>
+            <ons-list-item tappable ng-show="allowDigital">
+              <label class="list-item__left">
+                <ons-input name="effect" ng-model="effect" type="radio" input-id="effect_4" value="4"></ons-input>
+              </label>
+              <label for="effect_4" class="center">
+                <div class="list-item__title">Chasing Tail</div>
+                <div class="list-item__subtitle">(TAILLOOP)</div>
+              </label>
+            </ons-list-item>
+            <ons-list-item ng-model="effect_4.expanded" ng-show="effect==4 && allowDigital">
+              <div style="width:95%; display:block; text-align: center;">
+              <ons-list modifier="inset">
+                <ons-list-header>Tail Colors</ons-list-header>
+                  <ons-list-item ng-model="effect_4.colors">
+                  <div style="text-align: center; display: block;" class="center" >
+                    <div class="list-item__thumbnailrow" ng-model="effect_4.color_1" id="effect_4.color_1" ng-class="{ 'gradient': effect_4.color_1=='#0f0f0f' }" style="background-color:{{ effect_4.color_1=='#0f0f0f' ? '#FFFFFF' : effect_4.color_1 }};" ng-click="showCS('effect_4','color_1', true)"></div>  
+                    <div class="list-item__thumbnailrow" ng-model="effect_4.color_2" id="effect_4.color_2" ng-class="{ 'gradient': effect_4.color_2=='#0f0f0f' }" style="background-color:{{ effect_4.color_2=='#0f0f0f' ? '#FFFFFF' : effect_4.color_2 }};" ng-click="showCS('effect_4','color_2', true)"></div>
+                    <div class="list-item__thumbnailrow" ng-model="effect_4.color_3" id="effect_4.color_3" ng-class="{ 'gradient': effect_4.color_3=='#0f0f0f' }" style="background-color:{{ effect_4.color_3=='#0f0f0f' ? '#FFFFFF' : effect_4.color_3 }};" ng-click="showCS('effect_4','color_3', true)"></div>
+                    <div class="list-item__thumbnailrow" ng-model="effect_4.color_4" id="effect_4.color_4" ng-class="{ 'gradient': effect_4.color_4=='#0f0f0f' }" style="background-color:{{ effect_4.color_4=='#0f0f0f' ? '#FFFFFF' : effect_4.color_4 }};" ng-click="showCS('effect_4','color_4', true)"></div>
+                    <div class="list-item__thumbnailrow" ng-model="effect_4.color_5" id="effect_4.color_5" ng-class="{ 'gradient': effect_4.color_5=='#0f0f0f' }" style="background-color:{{ effect_4.color_5=='#0f0f0f' ? '#FFFFFF' : effect_4.color_5 }};" ng-click="showCS('effect_4','color_5', true)"></div>                    
+                  </div>
+                </ons-list-item>
+                <ons-list-header>Tail Length</ons-list-header>
+                <ons-list-item>
+                  <div class="center">
+                  <ons-range id="tail_length" value="1" min="1" max="50" ng-model="tail_length" ng-init="tail_length=1" style="width: 90%; align: center;"></ons-range>
+                  </div>
+                  <div class="right">{{ tail_length }} px</div>
+                </ons-list-item>
+                <ons-list-header>Direction &amp; Fill</ons-list-header>
+                <ons-list-item tappable>
+                  <label class="list-item__left">
+                    <ons-input name="effect_4.direction" ng-model="effect_4.direction" type="radio" input-id="effect_4.direction_right" ng-init="effect_4.direction=1" value="1"></ons-input>
+                  </label>
+                  <label for="effect_4.direction_right" class="center">
+                    <div class="list-item__title">Left <ons-icon icon="md-long-arrow-right" size="20px" class="list-item__icon"></ons-icon> Right</div>
+                    <div class="list-item__subtitle">Do Not Fill Strip</div>
+                  </label>             
+                </ons-list-item>
+                <ons-list-item tappable>
+                  <label class="list-item__left">
+                    <ons-input name="effect_4.direction" ng-model="effect_4.direction" type="radio" input-id="effect_4.direction_rightfill" value="2"></ons-input>
+                  </label>
+                  <label for="effect_4.direction_rightfill" class="center">
+                    <div class="list-item__title">Left <ons-icon icon="md-long-arrow-right" size="20px" class="list-item__icon"></ons-icon> Right</div>
+                    <div class="list-item__subtitle">Fill In Entire Strip</div>
+                  </label>             
+                </ons-list-item>
+                <ons-list-item tappable>
+                  <label class="list-item__left">
+                    <ons-input name="effect_4.direction" ng-model="effect_4.direction" type="radio" input-id="effect_4.direction_left" value="-1"></ons-input>
+                  </label>
+                  <label for="effect_4.direction_left" class="center">
+                    <div class="list-item__title">Right <ons-icon icon="md-long-arrow-right" size="20px" class="list-item__icon"></ons-icon> Left</div>
+                    <div class="list-item__subtitle">Do Not Fill Strip</div>
+                  </label>             
+                </ons-list-item>
+                <ons-list-item tappable>
+                  <label class="list-item__left">
+                    <ons-input name="effect_4.direction" ng-model="effect_4.direction" type="radio" input-id="effect_4.direction_leftfill" value="-2"></ons-input>
+                  </label>
+                  <label for="effect_4.direction_leftfill" class="center">
+                    <div class="list-item__title">Right <ons-icon icon="md-long-arrow-right" size="20px" class="list-item__icon"></ons-icon> Left</div>
+                    <div class="list-item__subtitle">Fill In Entire Strip</div>
+                  </label>             
+                </ons-list-item>
+                <ons-list-item tappable>
+                  <label class="list-item__left">
+                    <ons-input name="effect_4.direction" ng-model="effect_4.direction" type="radio" input-id="effect_4.direction_alternate" value="3"></ons-input>
+                  </label>
+                  <label for="effect_4.direction_alternate" class="center">
+                    <div class="list-item__title">Fill &amp; Swap <ons-icon icon="md-swap" size="20px" class="list-item__icon"></ons-icon> After {{ alternate_pixels }} Pixels</div>
+                    <div class="list-item__subtitle">
+                      <ons-range id="alternate_pixels" ng-init="alternate_pixels=3" value="3" min="3" max="50" ng-model="alternate_pixels" ng-init="alternate_pixels=3" style="width: 90%; align: center;"></ons-range>
+                    </div>
+                  </label>             
+                </ons-list-item>
+              </ons-list>
+              </div>
+            </ons-list-item>
+            <ons-list-item tappable ng-show="allowDigital">
+              <label class="list-item__left">
+                <ons-input name="effect" ng-model="effect" type="radio" input-id="effect_5" value="5"></ons-input>
+              </label>
+              <label for="effect_5" class="center">
+                <div class="list-item__title">Candle/Fire Flicker</div>
+                <div class="list-item__subtitle">(FLICKER)</div>
+              </label>
+              <label class="right" id="effect_5.color_cp" ng-model="effect_5.color_cp">
+                  <div class="list-item__thumbnail" ng-model="effect_5.color" id="effect_5.color" ng-class="{ 'gradient': effect_5.color=='#0f0f0f' }" style="background-color:{{ effect_5.color=='#0f0f0f' ? '#FFFFFF' : effect_5.color }};" ng-click="showCS('effect_5','color', true)"></div>
+              </label>
+            </ons-list-item>
+            <ons-list-header ng-show="effect>0">Speed</ons-list-header>
+            <ons-list-item ng-model="speed_list_item" ng-show="effect>0">
+              <div class="list-item__left">
+                <ons-icon icon="md-run" size="25px" class="list-item__icon"></ons-icon>
+              </div>
+              <div class="center">
+                <ons-range ng-model="speed" ng-init="speed=34" id="speed" value="34" style="width: 90%; align: center;" ng-disabled="effect < 1" disabled></ons-range>
+              </div>
+              <div class="right">
+                <ons-icon icon="md-walk" size="25px" class="list-item__icon"></ons-icon>
+                <div id="speed_label" style="width: 50px; float: right; text-align:right; margin-left:15px;">{{ speed | log }}ms</div>
+              </div>
+            </ons-list-item>
+            <ons-list-header>Save Settings</ons-list-header>
+            <ons-list-item>
+              <label for="save_settings" class="list-item__center">
+                <div class="list-item__title">Use as Default</div>
+                <div class="list-item__subtitle">Enable to save this effect for use on restart.</div>
+              </label>
+              <label class="right">
+                <ons-switch ng-model="save_settings" id="save_settings"></ons-switch>
+              </label>
+            </ons-list-item>
+            <ons-list-header>Command String</ons-list-header>
+            <ons-list-item>
+              <div class="center" style="width:100%;">
+                <pre class="selectable">{{ getCmdString(lastEsp) }}</pre>
+              </div>
+            </ons-list-item>
+        </ons-list>
+      </div>
+        <ons-fab style="vertical-align:middle;" ripple var="liveBtn" position="bottom right" ng-click="goLive(!live)" ng-disabled="esplist == null" >
+            <ons-icon ng-hide="live" icon="md-play" class="ons-button__icon"></ons-icon>
+            <ons-icon ng-show="live" icon="md-pause" class="ons-button__icon"></ons-icon>
+        </ons-fab>
+    </ons-page>
+  </ons-template>
+
+  </ons-template>
+  <ons-template id="chooseColor.html">
+    <ons-page id="chooseColor" ng-controller="chooseColor_ctrl">
+      <ons-toolbar>
+        <div class="list-item__left">
+        <ons-toolbar-button class="toolbar-button--quiet" ng-click="navi.popPage();">
+        <ons-icon style="vertical-align:middle;" icon="ion-chevron-left, material:md-chevron-left" class="ion-ios-arrow-back ons-back-button__icon"></ons-icon>
+         </ons-toolbar-button>
+        </div>
+        <div class="center">Select Color</div>
+      </ons-toolbar>
+      <div class="content" style="display: flex; width: 100%; flex-direction: column; align-items: center; justify-content: center;">
+        <p><color-picker ng-model="colorSelect.initialColor" on-select="$ctrl.onSelect(color)"></color-picker></p>
+        <ons-row>
+        <ons-col width="8%">&nbsp;</ons-col>
+        <ons-col width="28%" style="padding: 5px"><ons-button modifier="large" ng-click="returnColor('000000');">Black</ons-button></ons-col>
+        <ons-col width="28%" style="padding: 5px"><ons-button modifier="large" ng-click="returnColor('ffffff');">White</ons-button></ons-col>
+        <ons-col width="28%" style="padding: 5px"><ons-button modifier="large" ng-disabled="!colorSelect.allowRandom" ng-click="returnColor('0f0f0f')">Random</ons-button>
+        <ons-col width="8%">&nbsp;</ons-col>
+        </ons-row>
+        <p><ons-button modifier="quiet" ng-click="navi.popPage();">Cancel</ons-button></p>
+      </div>
+    </ons-page>
+  </ons-template>
+
+  <ons-template id="manage.html">
+    <ons-page id="manage" ng-controller="espfind_ctrl">
+      <ons-toolbar>
+        <div class="list-item__left">
+        <ons-toolbar-button class="toolbar-button--quiet" ng-click="validateExit()">
+  			<ons-icon style="vertical-align:middle;" icon="ion-chevron-left, material:md-chevron-left" class="ion-ios-arrow-back ons-back-button__icon"></ons-icon>
+			   </ons-toolbar-button>
+        </div>
+        <div class="center">Manage Controllers</div>
+      </ons-toolbar>
+
+      <div class="content" style="text-align: center">
+        <p><b>Available ESPLightX Controllers</b></p>
+        <div class="container" >
+            <ons-list>
+                <ons-list-header>Check to Disable</ons-list-header>
+                <ons-list-item tappable ng-repeat="esp in esplist track by $index">
+                      <label class="list-item__left">
+                        <ons-input type="checkbox" input-id="check-{{ $index }}" ng-click="toggleDisable($index)" ng-model="esp.disabled"></ons-input>
+                      </label>
+                      <label class="center done-{{ esp.disabled }}">
+                        <div class="list-item__title" ng-hide="esp.editing">{{ esp.espname }}</div>
+						<div class="list-item__subtitle" ng-hide="esp.editing">{{ esp.ipaddr }}</div>
+						<div class="list-item__subtitle" ng-show="esp.editing">
+							<ons-row vertical-align="center">
+							  <ons-col width="30%">Name:</ons-col>
+							  <ons-col><ons-input type="text" ng-model="esp.espname" id="espNameEdit" modifier="underbar"></ons-input></ons-col>
+							</ons-row>
+							<ons-row vertical-align="center">
+							  <ons-col width="30%">Host/IP:</ons-col>
+							  <ons-col><ons-input type="text" ng-model="esp.ipaddr" id="espIpEdit" modifier="underbar"></ons-input></ons-col>
+							</ons-row>
+							<ons-row vertical-align="center">
+							  <ons-col width="30%">Pin:</ons-col>
+							  <ons-col><ons-input type="number" id="espPinEdit" ng-model="esp.pin" modifier="underbar"></ons-input></ons-col>
+							</ons-row>
+							    <ons-row vertical-align="center" style="padding: 10px 0px 10px 0px;">
+				        		<ons-col width="40%" style="text-align: center;"><label  for="espDigital">Analog</label></ons-col>
+				              	<ons-col width="20%" style="text-align: center;" ><ons-switch ng-model="esp.digital" input-id="espDigital"></ons-switch>
+				              	</ons-col>
+				              	<ons-col style="text-align: center;"><label for="espDigital">Digital</label></ons-col>
+				            </ons-row>
+			            </div>
+                      </label>
+                      <label class="right">
+                        <ons-button modifier="quiet" ng-click="toggleEdit($index)"><ons-icon icon="edit, material:md-edit" size="25px" class="list-item__icon" style="margin-left:2px;"></ons-icon></ons-button>
+                        <ons-button modifier="quiet" ng-click="trash($index)"><ons-icon icon="trash, material:md-delete" size="25px" class="list-item__icon" style="color:red; margin-left:2px;"></ons-icon></ons-button>
+                      </label>
+                </ons-list-item>
+            </ons-list>
+
+        <p>&nbsp;</p>    
+        <p><ons-button modifier="large" id="pop-button" ng-click="validateExit()">Back To Main Page</ons-button></p>
+	        <ons-speed-dial position="bottom right" direction="up" var="addMenu">
+				<ons-fab>
+				  <ons-icon icon="md-plus" class="ons-button__icon"></ons-icon>
+				</ons-fab>
+				<ons-speed-dial-item ng-click="show('addDialog.html')">
+				  <ons-icon icon="md-plus" class="ons-button__icon"></ons-icon>
+				</ons-speed-dial-item>
+				<ons-speed-dial-item disabled>
+				  <ons-icon icon="md-search" class="ons-button__icon"></ons-icon>
+				</ons-speed-dial-item>
+			</ons-speed-dial>
+		</div>
+    </ons-page>
+  </ons-template>
+	<ons-template id="addDialog.html">
+	    <ons-dialog var="addDialog" ons-preshow="addMenu.hideItems()" ng-controller="addDialog_ctrl">
+		  <div style="text-align: center; padding: 10px;">
+		  	<p><span style="font-weight:bold;">Add ESPLightX</span></p>
+		  	<p><span style="font-size:85%">By Manual IP or Hostname</span></p>
+			<p><ons-input type="text" placeholder="Name" float ng-model="espName" id="espName"></ons-input></p>
+	        <p><ons-input type="text" placeholder="IP" float ng-model="espIp" id="espIp"></ons-input></p>
+	        <p><ons-input type="number" placeholder="PIN" id="espPin" ng-model="espPin" float></ons-input></p>
+        	<ons-row vertical-align="center" style="padding: 10px 0px 10px 0px;">
+    		<ons-col width="40%" style="text-align: center; font-size:85%; padding-left:30px;"><label  for="espDigital">Analog</label></ons-col>
+          	<ons-col width="18%" style="text-align: center; font-size:85%;" ><ons-switch ng-model="espDigital" input-id="espDigital"></ons-switch>
+          	</ons-col>
+          	<ons-col style="text-align: center; font-size:85%; padding-right:30px;"><label for="espDigital">Digital</label></ons-col>
+        	</ons-row>
+	        <p><ons-button ng-click="addEsp()">Add ESPLightX</ons-button>
+			<ons-button modifier="quiet" ng-click="addDialog.hide()">Cancel</ons-button>
+		    </p>
+		  </div>
+		</ons-dialog>
+</html>

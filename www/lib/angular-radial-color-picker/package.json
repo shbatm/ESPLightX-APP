@@ -1,0 +1,119 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "angular-radial-color-picker",
+        "scope": null,
+        "escapedName": "angular-radial-color-picker",
+        "name": "angular-radial-color-picker",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\Tim\\Documents\\projects\\EspLight-APP_v2c"
+    ]
+  ],
+  "_from": "angular-radial-color-picker@latest",
+  "_id": "angular-radial-color-picker@2.1.0",
+  "_inCache": true,
+  "_location": "/angular-radial-color-picker",
+  "_nodeVersion": "6.10.1",
+  "_npmOperationalInternal": {
+    "host": "packages-18-east.internal.npmjs.com",
+    "tmp": "tmp/angular-radial-color-picker-2.1.0.tgz_1493397196393_0.8993643342982978"
+  },
+  "_npmUser": {
+    "name": "zlatip",
+    "email": "zlati.pehlivanov@gmail.com"
+  },
+  "_npmVersion": "3.10.10",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "angular-radial-color-picker",
+    "scope": null,
+    "escapedName": "angular-radial-color-picker",
+    "name": "angular-radial-color-picker",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/angular-radial-color-picker/-/angular-radial-color-picker-2.1.0.tgz",
+  "_shasum": "7b83bcfaeea39e2923a706cbf5118dfb2ce9284f",
+  "_shrinkwrap": null,
+  "_spec": "angular-radial-color-picker",
+  "_where": "C:\\Users\\Tim\\Documents\\projects\\EspLight-APP_v2c",
+  "author": {
+    "name": "Zlati Pehlivanov",
+    "email": "Zlati.Pehlivanov@mentormate.com"
+  },
+  "bugs": {
+    "url": "https://github.com/talamaska/angular-radial-color-picker/issues"
+  },
+  "contributors": [
+    {
+      "name": "Rosen Kanev",
+      "email": "rkunev@gmail.com"
+    }
+  ],
+  "dependencies": {
+    "Propeller": "^0.3.1",
+    "angular": "^1.5.8"
+  },
+  "description": "Angular-ready radial color picker with some sleek animations.",
+  "devDependencies": {
+    "copyfiles": "^1.0.0",
+    "mkdirp": "^0.5.1",
+    "ng-annotate": "^1.2.1",
+    "node-sass": "^3.8.0",
+    "rimraf": "^2.5.4",
+    "uglify-js": "^2.7.3"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "7b83bcfaeea39e2923a706cbf5118dfb2ce9284f",
+    "tarball": "https://registry.npmjs.org/angular-radial-color-picker/-/angular-radial-color-picker-2.1.0.tgz"
+  },
+  "gitHead": "58bd86ab89190cf7c1e11dbe5768f6d810f98b86",
+  "homepage": "https://github.com/talamaska/angular-radial-color-picker#readme",
+  "keywords": [
+    "angular",
+    "material",
+    "color",
+    "color picker"
+  ],
+  "license": "MIT",
+  "main": "dist/js/color-picker.js",
+  "maintainers": [
+    {
+      "name": "rkunev",
+      "email": "rkunev@gmail.com"
+    },
+    {
+      "name": "zlatip",
+      "email": "zlati.pehlivanov@gmail.com"
+    }
+  ],
+  "name": "angular-radial-color-picker",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/talamaska/angular-radial-color-picker.git"
+  },
+  "scripts": {
+    "annotate": "mkdirp dist/js && ng-annotate -a src/color-picker.bundle.js > dist/js/color-picker.js",
+    "build": "npm run clean && npm run minify && npm run scss && npm run images",
+    "clean": "rimraf dist && mkdirp dist/js && mkdirp dist/css",
+    "images": "mkdirp dist/images && copyup src/images/*.png dist",
+    "minify": "npm run annotate && uglifyjs dist/js/color-picker.js -o dist/js/color-picker.min.js --source-map dist/js/color-picker.min.js.map --source-map-root / --source-map-url color-picker.min.js.map --source-map-include-sources -c -m",
+    "prepublish": "npm run build",
+    "scss": "mkdirp dist/css && npm run scss:src && npm run scss:dist",
+    "scss:dist": "node-sass --source-map true --source-map-contents -q --output-style compressed src/scss/color-picker.scss dist/css/color-picker.min.css",
+    "scss:src": "node-sass -q --output-style expanded src/scss/color-picker.scss dist/css/color-picker.css",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "2.1.0"
+}

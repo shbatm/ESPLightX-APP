@@ -1,0 +1,152 @@
+/**/
+
+pre {
+    font-size: 90%;
+    line-height: 1.2em;
+    font-family: "Courier 10 Pitch", Courier, monospace; 
+    white-space: pre; 
+    white-space: pre-wrap; 
+    white-space: -moz-pre-wrap; 
+    white-space: -o-pre-wrap; 
+
+    width: auto;
+    display: block;
+    clear: both;
+    color: #555555;
+    padding: 1em 1em;
+    margin: auto 15px auto 15px;
+    background: #f4f4f4;
+    border: solid 1px #e1e1e1;
+    word-break: break-all;
+} 
+
+code { 
+    font-size: 90%;
+    line-height: 1.2em;
+    font-family: Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
+
+    display: inline; 
+    color: #555555;
+    padding: 1em 1em;
+    background: #f4f4f4;
+    word-break: break-all;
+}
+
+.selectable {
+        -webkit-user-select: auto !important;
+        -khtml-user-select: auto !important;
+        -moz-user-select: auto !important;
+        -ms-user-select: auto !important;
+        -o-user-select: auto !important;
+        user-select: auto !important;  
+}
+
+.pressable-element {
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
+.random
+{
+    text-align: center;
+    vertical-align: middle;
+    font-weight: bold;
+    padding: 0px 20px 0px 20px;
+}
+
+/* ------------------------------------------- */
+/* -------  ADD/MANAGE ESPLIGHTX HOSTS ------- */
+/* ------------------------------------------- */
+.app-body {
+margin-top: 40px;
+}
+
+.ons-back-button__icon {
+    vertical-align: middle;
+    margin-left: 8px;
+    margin-right: 4px;
+    display: inline-block;
+    padding-top: 1px;
+}
+
+.button--material {
+    padding-top: 3px;
+}
+
+.ons-button__icon[modifier="material"] {
+    vertical-align: middle;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+div.center {
+    vertical-align: middle;
+    display: inline-block;
+    margin-top: 4px;
+}
+
+.done-true {
+    text-decoration: line-through;
+    color: grey;
+}
+
+.archive-control {
+border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+height: 22px;
+line-height: 22px;
+padding: 5px 0px 5px 10px;
+margin-bottom: 50px;
+background: #ecf0f1;
+}
+
+.todo-form {
+padding: 10px;
+text-align: center;
+}
+
+.list-item__thumbnail {
+    border-style: solid;
+    border-width: 1px;
+    border-color: #aaaaaa;
+}
+
+.list-item__thumbnailrow {
+  width: 20px;
+  height: 20px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  display: inline-block;
+  margin:0px 10px 0px 10px; 
+}
+
+.gradient {
+    background: -webkit-linear-gradient(left, red, orange, yellow, green, blue, indigo, violet) !important; /* For Safari 5.1 to 6.0 */
+    background: -o-linear-gradient(left, red, orange, yellow, green, blue, indigo, violet) !important; /* For Opera 11.1 to 12.0 */
+    background: -moz-linear-gradient(left, red, orange, yellow, green, blue, indigo, violet) !important; /* For Fx 3.6 to 15 */
+    background: linear-gradient(to right, red, orange, yellow, green, blue, indigo, violet) !important; /* Standard syntax (must be last) */
+}
+
+color-picker .color-palette {
+    /* color wheel animation */
+    transition-duration: .35s;
+}
+color-picker .color {
+    /* selector (middle button) pulse animation */
+    animation-duration: .28s;
+
+    /* selector (middle button) appear/disappear */
+    transition-duration: .49s;
+}
+color-picker .color-shadow-animate {
+    /* ripple animation */
+    animation-duration: .35s;
+}
+color-picker .knob {
+    /* first property is for knob shadow on drag */
+    /* second property is for knob appear/disappear */
+    transition-duration: .2s, .28s;
+}
